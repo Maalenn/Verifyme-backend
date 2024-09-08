@@ -19,12 +19,18 @@ const Genders = sequelize.define(
                 },
                 isIn: {
                     args: [["male", "female"]],
-                    msg: 'Gender must be male or female'
+                    msg: "Gender must be male or female",
                 },
             },
         },
     },
     {
+        indexes: [
+            {
+                unique: true,
+                fields: ["name"],
+            },
+        ],
         timestamps: false,
     },
 );
