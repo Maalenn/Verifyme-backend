@@ -1,9 +1,10 @@
-const express = require('express')
-
-const roleRouters = require('./roleRouters')
-
+const express = require("express");
 const router = express.Router();
 
-router.use('/roles', roleRouters);
+const roleRouters = require("./roleRouters");
+const genderRouters = require("./genderRouters");
 
-module.exports = router
+router.use("/roles", roleRouters);
+router.use("/genders", genderRouters);
+
+module.exports = router;
