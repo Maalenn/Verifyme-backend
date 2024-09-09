@@ -16,7 +16,6 @@ class AddressControllers extends BaseController {
 
         res.status(200).json({
             status: "success",
-            results: users.length,
             data: addresses,
         });
     });
