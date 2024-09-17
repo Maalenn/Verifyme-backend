@@ -1,5 +1,5 @@
 const Criterias = require("../models/Criterias");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const criteriasData = [
     {

@@ -12,38 +12,38 @@ const Users = sequelize.define(
             autoIncrement: true,
             primaryKey: true,
         },
-        // firstName: {
-        //     type: DataTypes.STRING,
-        //     allowNull: false,
-        //     validate: {
-        //         notEmpty: {
-        //             msg: "Please tell us your first name!",
-        //         },
-        //         isAlpha: {
-        //             msg: "First name must contain only letters.",
-        //         },
-        //         len: {
-        //             args: [2, 30],
-        //             msg: "First name must be between 2 and 30 characters long.",
-        //         },
-        //     },
-        // },
-        // lastName: {
-        //     type: DataTypes.STRING,
-        //     allowNull: false,
-        //     validate: {
-        //         notEmpty: {
-        //             msg: "Please tell us your last name!",
-        //         },
-        //         isAlpha: {
-        //             msg: "Last name must contain only letters.",
-        //         },
-        //         len: {
-        //             args: [2, 30],
-        //             msg: "Last name must be between 2 and 30 characters long.",
-        //         },
-        //     },
-        // },
+        firstName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: {
+                    msg: "Please tell us your first name!",
+                },
+                isAlpha: {
+                    msg: "First name must contain only letters.",
+                },
+                len: {
+                    args: [2, 30],
+                    msg: "First name must be between 2 and 30 characters long.",
+                },
+            },
+        },
+        lastName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: {
+                    msg: "Please tell us your last name!",
+                },
+                isAlpha: {
+                    msg: "Last name must contain only letters.",
+                },
+                len: {
+                    args: [2, 30],
+                    msg: "Last name must be between 2 and 30 characters long.",
+                },
+            },
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -99,19 +99,19 @@ const Users = sequelize.define(
         nationality: {
             type: DataTypes.STRING,
         },
-        // dateOfBirth: {
-        //     type: DataTypes.DATE,
-        //     allowNull: false,
-        //     validate: {
-        //         isDate: {
-        //             msg: "Please provide a valide date of birth.",
-        //         },
-        //         isBefore: {
-        //             args: [new Date().toISOString().split("T")[0]],
-        //             msg: "Date of birth must be in the past.",
-        //         },
-        //     },
-        // },
+        dateOfBirth: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            validate: {
+                isDate: {
+                    msg: "Please provide a valide date of birth.",
+                },
+                isBefore: {
+                    args: [new Date().toISOString().split("T")[0]],
+                    msg: "Date of birth must be in the past.",
+                },
+            },
+        },
         genderId: {
             type: DataTypes.INTEGER,
             references: {
