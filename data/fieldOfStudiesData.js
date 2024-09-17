@@ -1,5 +1,5 @@
 const FieldOfStudies = require("../models/FieldOfStudies");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const fieldOfStudies = [
     {

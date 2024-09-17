@@ -1,5 +1,5 @@
 const AcademicLevels = require("../models/AcademicLevels");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const academiclevels = [
     {

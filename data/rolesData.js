@@ -1,5 +1,5 @@
 const Roles = require("../models/Roles");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const rolesData = [
     { name: "admin" },

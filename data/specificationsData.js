@@ -1,5 +1,5 @@
 const Specializations = require("../models/Specializations");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const specificationsData = [
     {

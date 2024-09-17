@@ -1,5 +1,5 @@
 const Genders = require("../models/Genders");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const gendersData = [
     { name: "male" }, 
