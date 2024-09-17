@@ -1,5 +1,5 @@
 const Issuers = require("../models/Issuers");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const issuersData = [
     {

@@ -10,6 +10,8 @@ const sendEmail = require("../../services/email");
 const Users = require("../../models/Users");
 const Genders = require("../../models/Genders");
 const Roles = require("../../models/Roles");
+const sequelize = require("../../configs/database");
+const Addresses = require("../../models/Addresses");
 
 const uniqueFields = ["email", "username", "phoneNumber"];
 const associations = [Roles, Genders];
@@ -21,12 +23,42 @@ class AuthControllers extends BaseController {
 
     // ============ Start Signup controller ============
     signup = catchAsync(async (req, res, next) => {
-        const user = req.body;
+        // ========================= 
+        // const user = req.body;
 
-        await this.checkUniqueFields(user);
+        // await this.checkUniqueFields(user);
 
-        const newUser = await Users.create(user);
-        createSendToken(newUser, 201, res);
+        // const newUser = await Users.create(user);
+        // createSendToken(newUser, 201, res);
+        // ========================= 
+
+        const { userData, addressData } = req.body;
+
+        // Start a transaction for atomicity
+        const transaction = await sequelize.transaction();
+
+        try {
+            await this.checkUniqueFields(userData);
+            // Check for unique fields
+
+            // Create the user
+            const newUser = await Users.create(userData, { transaction });
+
+            // If address data exists, create address with the userId
+            if (addressData) {
+                await Addresses.create({ ...addressData, userId: newUser.id }, { transaction });
+            }
+
+            // Commit the transaction once both user and address are successfully created
+            await transaction.commit();
+
+            // Generate and send a token back to the client
+            createSendToken(newUser, 201, res);
+        } catch (error) {
+            // Rollback transaction in case of failure
+            await transaction.rollback();
+            return next(error); // Handle the error appropriately (e.g., pass to a global error handler)
+        }
     });
     // ============ End Signup controller ============
 
@@ -67,10 +99,11 @@ class AuthControllers extends BaseController {
         await user.save({ validate: false }); // Save the reset token and expiry to the DB
 
         // Send it to user's email
-        const resetURL = `${req.protocol}://${req.get(
-            "host",
-        )}/api/v1/users/resetPassword/${resetToken}`;
-        const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email.`;
+        // const resetURL = `${req.protocol}://${req.get(
+        //     "host",
+        // )}/api/v1/users/resetPassword/${resetToken}`;
+        // const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email.`;
+        const message = "forgot password";
 
         try {
             await sendEmail({
@@ -154,16 +187,16 @@ class AuthControllers extends BaseController {
     // ============ End Logout controller   ============
 
     // ============ Start Check Auth controller   ============
-    checkAuth = catchAsync(async(req, res, next) => {
+    checkAuth = catchAsync(async (req, res, next) => {
         const user = res.locals.user;
 
         // const user = await Users.findByPk(req.body.id)
-        if(!user){
-            return next(new AppError('User not found!', 404))
+        if (!user) {
+            return next(new AppError("User not found!", 404));
         }
 
-        res.status(200).json({user})
-    })
+        res.status(200).json({ user });
+    });
     // ============ End Check Auth controller     ============
 }
 

@@ -1,5 +1,5 @@
 const Achievements = require("../models/Achievements");
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 
 const achievementsData = [
     {

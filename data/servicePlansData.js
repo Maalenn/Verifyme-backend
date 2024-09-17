@@ -1,4 +1,4 @@
-const insertData = require("./insertData");
+const insertData = require("../utils/insertData");
 const ServicePlans = require("../models/ServicePlans");
 
 const servicePlansData = [
@@ -48,4 +48,4 @@ const servicePlansData = [
         stripePriceId: "price_1Pxkn8Bj5Xx4BpZrVQ5cDi34",
     },
 ];
-insertData(ServicePlans, servicePlansData, {validate: false});
+insertData(ServicePlans, servicePlansData, { validate: false });

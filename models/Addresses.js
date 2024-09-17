@@ -2,17 +2,17 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../configs/database");
 
 const Addresses = sequelize.define(
-    "Adresses",
+    "Addresses",
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
-            allowNull: false,
+            // allowNull: false,
         },
         street: {
             type: DataTypes.STRING,
-            allowNull: false,
+            // allowNull: false,
             validate: {
                 notEmpty: {
                     msg: "Street is required.",
@@ -21,7 +21,7 @@ const Addresses = sequelize.define(
         },
         city: {
             type: DataTypes.STRING,
-            allowNull: false,
+            // allowNull: false,
             validate: {
                 notEmpty: {
                     msg: "City is required.",
@@ -30,7 +30,7 @@ const Addresses = sequelize.define(
         },
         postalCode: {
             type: DataTypes.STRING,
-            allowNull: false,
+            // allowNull: false,
             validate: {
                 notEmpty: {
                     msg: "Postal Code is required.",
@@ -42,7 +42,7 @@ const Addresses = sequelize.define(
         },
         country: {
             type: DataTypes.STRING,
-            allowNull: false,
+            // allowNull: false,
             validate: {
                 notEmpty: {
                     msg: "Country is required.",
@@ -51,7 +51,7 @@ const Addresses = sequelize.define(
         },
         userId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: "Users",
                 key: "id",
