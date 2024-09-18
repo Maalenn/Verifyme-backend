@@ -23,14 +23,14 @@ class AuthControllers extends BaseController {
 
     // ============ Start Signup controller ============
     signup = catchAsync(async (req, res, next) => {
-        // ========================= 
+        // =========================
         // const user = req.body;
 
         // await this.checkUniqueFields(user);
 
         // const newUser = await Users.create(user);
         // createSendToken(newUser, 201, res);
-        // ========================= 
+        // =========================
 
         const { userData, addressData } = req.body;
 
@@ -38,8 +38,8 @@ class AuthControllers extends BaseController {
         const transaction = await sequelize.transaction();
 
         try {
-            await this.checkUniqueFields(userData);
             // Check for unique fields
+            await this.checkUniqueFields(userData);
 
             // Create the user
             const newUser = await Users.create(userData, { transaction });
@@ -55,9 +55,11 @@ class AuthControllers extends BaseController {
             // Generate and send a token back to the client
             createSendToken(newUser, 201, res);
         } catch (error) {
-            // Rollback transaction in case of failure
-            await transaction.rollback();
-            return next(error); // Handle the error appropriately (e.g., pass to a global error handler)
+            // Rollback transaction only if it hasn't been committed yet
+            if (!transaction.finished) {
+                await transaction.rollback();
+            }
+            return next(error);
         }
     });
     // ============ End Signup controller ============
