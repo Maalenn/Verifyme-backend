@@ -12,6 +12,7 @@ const Genders = require("../../models/Genders");
 const Roles = require("../../models/Roles");
 const sequelize = require("../../configs/database");
 const Addresses = require("../../models/Addresses");
+const Institutions = require("../../models/Institutions");
 
 const uniqueFields = ["email", "username", "phoneNumber"];
 const associations = [Roles, Genders];
@@ -32,7 +33,7 @@ class AuthControllers extends BaseController {
         // createSendToken(newUser, 201, res);
         // =========================
 
-        const { userData, addressData } = req.body;
+        const { userData, addressData, institutionData, institutionAddressData } = req.body;
 
         // Start a transaction for atomicity
         const transaction = await sequelize.transaction();
@@ -47,6 +48,23 @@ class AuthControllers extends BaseController {
             // If address data exists, create address with the userId
             if (addressData) {
                 await Addresses.create({ ...addressData, userId: newUser.id }, { transaction });
+            }
+
+            // If institution data exists, create the institution with userId
+            let newInstitution;
+            if (institutionData) {
+                newInstitution = await Institutions.create(
+                    { ...institutionData, userId: newUser.id },
+                    { transaction },
+                );
+
+                // If institution address data exists, create institution address with institutionId
+                if (institutionAddressData) {
+                    await Addresses.create(
+                        { ...institutionAddressData, institutionId: newInstitution.id },
+                        { transaction },
+                    );
+                }
             }
 
             // Commit the transaction once both user and address are successfully created
