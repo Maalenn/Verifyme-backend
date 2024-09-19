@@ -13,6 +13,7 @@ const Roles = require("../../models/Roles");
 const sequelize = require("../../configs/database");
 const Addresses = require("../../models/Addresses");
 const Institutions = require("../../models/Institutions");
+const { generateVerificationCode } = require("../../utils/generateVerificationCode");
 
 const uniqueFields = ["email", "username", "phoneNumber"];
 const associations = [Roles, Genders];
@@ -52,9 +53,10 @@ class AuthControllers extends BaseController {
 
             // If institution data exists, create the institution with userId
             let newInstitution;
+            const institutionCode = generateVerificationCode();
             if (institutionData) {
                 newInstitution = await Institutions.create(
-                    { ...institutionData, userId: newUser.id },
+                    { ...institutionData, userId: newUser.id, institutionCode },
                     { transaction },
                 );
 

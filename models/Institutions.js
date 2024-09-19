@@ -19,7 +19,7 @@ const Institutions = sequelize.define(
             onDelete: "CASCADE",
             onUpdate: "CASCADE",
         },
-        name: {
+        institutionName: {
             type: DataTypes.STRING,
             validate: {
                 notEmpty: {
@@ -27,7 +27,7 @@ const Institutions = sequelize.define(
                 },
             },
         },
-        bio: {
+        institutionBio: {
             type: DataTypes.STRING,
             validate: {
                 len: {
@@ -36,7 +36,7 @@ const Institutions = sequelize.define(
                 },
             },
         },
-        email: {
+        institutionEmail: {
             type: DataTypes.STRING,
             unique: {
                 msg: "This email is already in use.",
@@ -50,7 +50,7 @@ const Institutions = sequelize.define(
                 },
             },
         },
-        phoneNumber: {
+        institutionPhoneNumber: {
             type: DataTypes.STRING,
             validate: {
                 notEmpty: {
@@ -65,7 +65,7 @@ const Institutions = sequelize.define(
                 },
             },
         },
-        websiteUrl: {
+        institutionWebsiteUrl: {
             type: DataTypes.STRING,
             validate: {
                 isUrl: {
@@ -73,18 +73,31 @@ const Institutions = sequelize.define(
                 },
             },
         },
-        profileImage: {
+        institutionProfileImage: {
             type: DataTypes.STRING,
         },
         stripeCustomerId: {
             type: DataTypes.STRING,
+        },
+        institutionCode: {
+            type: DataTypes.STRING(6),
+            allowNull: true,
+            validate: {
+                isNumeric: {
+                    msg: "Verification code must contain only numbers.",
+                },
+                len: {
+                    args: [6, 6],
+                    msg: "Verification code must be exactly 6 digits.",
+                },
+            },
         },
     },
     {
         indexes: [
             {
                 unique: true,
-                fields: ["name", "stripeCustomerId"],
+                fields: ["institutionName", "stripeCustomerId"],
             },
         ],
     },
