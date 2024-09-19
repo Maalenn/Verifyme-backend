@@ -9,6 +9,6 @@ router
     .route("/:id")
     .get(earnerControllers.getOne)
     .patch(earnerControllers.updateOne)
-    .delete(earnerControllers.deleteAll);
+    .delete(earnerControllers.deleteOne);
 
 module.exports = router;

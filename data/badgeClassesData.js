@@ -1,6 +1,15 @@
 const BadgeClasses = require("../models/BadgeClasses");
 const insertData = require("../data/insertData");
 
+// Function to generate a random future date
+const getRandomFutureDate = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return new Date(
+        startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()),
+    );
+};
+
 const badgeClassesData = [
     {
         id: 1,
@@ -10,6 +19,11 @@ const badgeClassesData = [
         issuerId: 1,
         alignmentId: 1,
         tags: "explorer,achievements",
+        startedDate: new Date(), // Current date
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ), // Random date in the next year
     },
     {
         id: 2,
@@ -19,6 +33,11 @@ const badgeClassesData = [
         issuerId: 2,
         alignmentId: 2,
         tags: "coding,champion",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 3,
@@ -28,6 +47,11 @@ const badgeClassesData = [
         issuerId: 3,
         alignmentId: 3,
         tags: "bug,hunter,fix",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 4,
@@ -37,6 +61,11 @@ const badgeClassesData = [
         issuerId: 4,
         alignmentId: 4,
         tags: "design,guru",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 6,
@@ -46,6 +75,11 @@ const badgeClassesData = [
         issuerId: 6,
         alignmentId: 6,
         tags: "data,science,projects",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 7,
@@ -55,6 +89,11 @@ const badgeClassesData = [
         issuerId: 7,
         alignmentId: 7,
         tags: "security,expert",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 8,
@@ -64,6 +103,11 @@ const badgeClassesData = [
         issuerId: 8,
         alignmentId: 8,
         tags: "developer,full-stack",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 9,
@@ -73,6 +117,11 @@ const badgeClassesData = [
         issuerId: 9,
         alignmentId: 9,
         tags: "cloud,architecture",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
     {
         id: 10,
@@ -82,7 +131,13 @@ const badgeClassesData = [
         issuerId: 10,
         alignmentId: 10,
         tags: "devops,automation",
+        startedDate: new Date(),
+        expiredDate: getRandomFutureDate(
+            new Date(),
+            new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        ),
     },
 ];
 
+// Insert data into the database
 insertData(BadgeClasses, badgeClassesData, { validate: true, returning: false });

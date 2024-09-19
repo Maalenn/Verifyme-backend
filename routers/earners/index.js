@@ -6,13 +6,13 @@ const fieldOfStudyRouters = require("./fieldOfStudyRouters");
 const specializationRouters = require("./specializationRouters");
 const courseRouters = require("./courseRouters");
 const academicBackgroundRouters = require("./academicBackgroundRouters");
-const earnRouters = require("./earnerRouters");
+const earnerRouters = require("./earnerRouters");
 
 router.use("/academiclevels", academicLevelRouters);
 router.use("/fieldofstudies", fieldOfStudyRouters);
 router.use("/specializations", specializationRouters);
 router.use("/courses", courseRouters);
 router.use("/academicbackgrounds", academicBackgroundRouters);
-router.use("/", earnRouters);
+router.use("/", earnerRouters);
 
 module.exports = router;

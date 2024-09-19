@@ -40,11 +40,13 @@ const Payments = sequelize.define("Payments", {
             },
         },
     },
-    paymethMethod: {
+    paymentMethod: {
         type: DataTypes.STRING,
     },
     paymentDate: {
         type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
         validate: {
             isDate: {
                 msg: "Payment date must be a valid date.",
@@ -58,18 +60,8 @@ const Payments = sequelize.define("Payments", {
     },
     status: {
         type: DataTypes.BOOLEAN,
+        defaultValue : false
     },
-    stripePriceId : {
-        type : DataTypes.STRING,
-        allowNull : false
-    }
-}, {
-    indexes : [
-        {
-            unique : true,
-            fields : ['stripePriceId']
-        }
-    ]
 });
 
 module.exports = Payments;

@@ -5,19 +5,6 @@ const Subscriptions = require("../../models/Subscriptions");
 const Institutions = require("../../models/Institutions");
 const ServicePlans = require("../../models/ServicePlans");
 
-class SubscriptionControllers extends BaseControllers {
-    constructor() {
-        super(Subscriptions, [Institutions, ServicePlans]);
-    }
-    getAll = catchAsync(async (req, res, next) => {
-        const subscriptions = await Subscriptions.findAll({
-            include: [{ model: Institutions }, { model: ServicePlans }],
-        });
-        res.status(200).json({
-            status : "success",
-            data : subscriptions
-        })
-    });
-}
+const subscriptionControllers = new BaseControllers(Subscriptions, [], [Institutions, ServicePlans])
 
-module.exports = new SubscriptionControllers()
+module.exports = subscriptionControllers

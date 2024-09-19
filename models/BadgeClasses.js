@@ -53,6 +53,25 @@ const BadgeClasses = sequelize.define(
                 },
             },
         },
+        startedDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        expiredDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        duration: {
+            type: DataTypes.DATE,
+            get() {
+                const startDate = this.getDataValue("startedDate");
+                const endDate = this.getDataValue("expiredDate");
+                if (startDate && endDate) {
+                    return endDate - startDate;
+                }
+                return null;
+            },
+        },
     },
     {
         timestamps: true,

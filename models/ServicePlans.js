@@ -94,7 +94,7 @@ const ServicePlans = sequelize.define(
             defaultValue: false,
             allowNull: false,
         },
-        isBadgeBackpackFress: {
+        isBadgeBackpackFree: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false,
