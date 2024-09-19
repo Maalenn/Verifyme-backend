@@ -18,7 +18,7 @@ app.use('/api/v1/subscriptions/webhook', express.raw({ type: 'application/json' 
 
 // Global Middleware
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_BASE_URL, credentials: true }));
 app.use(cookieParser());
 app.use(helmet());
 
