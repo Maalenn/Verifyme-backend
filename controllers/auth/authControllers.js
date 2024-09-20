@@ -5,7 +5,7 @@ const BaseController = require("../../utils/baseControllers");
 const catchAsync = require("../../utils/catchAsync");
 const AppError = require("../../utils/appError");
 const { createSendToken } = require("../../middlewares/auth");
-const sendEmail = require("../../services/email");
+const sendEmail = require("../../services/mailServices");
 
 const Users = require("../../models/Users");
 const Genders = require("../../models/Genders");
