@@ -4,6 +4,7 @@ const PASSWORD_RESET_REQUEST_TEMPLATE =
     "<p>Click <a href='{resetURL}'>here</a> to reset your password</p>";
 const PASSWORD_RESET_SUCCESS_TEMPLATE = "<p>Your password has been successfully reset.</p>";
 const VERIFICATION_EMAIL_TEMPLATE = "<p>Your verification code is {verificationCode}</p>";
+const { inviteCodeTemplate } = require("../templates/inviteCodeTemplate");
 
 class EmailService {
     constructor() {
@@ -98,6 +99,19 @@ class EmailService {
             email,
             subject: "Password Reset Successful",
             html: PASSWORD_RESET_SUCCESS_TEMPLATE,
+        });
+    }
+
+    /**
+     * Send invite code email
+     * @param {string} email - Recipient's email
+     * @param {string} html - HTML content (invite code email template)
+     */
+    async sendInviteCode(email, html) {
+        await this.sendEmail({
+            email,
+            subject: "Invitation to Join Badge Platform",
+            html,
         });
     }
 }
