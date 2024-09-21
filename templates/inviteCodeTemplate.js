@@ -79,7 +79,6 @@ exports.inviteCodeTemplate = `
                     <h1>Invitation to Join [Institution Name]</h1>
                 </div>
                 <div class="content">
-                    <p>Dear [Issuer Name],</p>
                     <p>
                         You’ve been invited by <strong>[Institution Name]</strong> to join their
                         badge-issuing program on the <strong>[Badge Platform]</strong>.
