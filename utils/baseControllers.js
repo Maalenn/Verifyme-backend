@@ -1,8 +1,18 @@
 // Utils module
+require("dotenv").config();
 const { Op } = require("sequelize");
 const AppError = require("./appError");
 const catchAsync = require("./catchAsync");
 const ApiFeatures = require("./apiFeature");
+
+const AWS = require("aws-sdk");
+
+// Configure AWS S3
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_BUCKET_REGION,
+});
 
 /**
  * @class BaseController : CRUD default controller
@@ -11,10 +21,11 @@ const ApiFeatures = require("./apiFeature");
  * @param {Array} [associations=[]] - Array of associated models to include in queries
  */
 class BaseController {
-    constructor(Model, uniqueFields = [], associations = []) {
+    constructor(Model, uniqueFields = [], associations = [], imageField = null) {
         this.Model = Model;
         this.uniqueFields = Array.isArray(uniqueFields) ? uniqueFields : [];
         this.associations = associations;
+        this.imageField = imageField;
     }
 
     // ============ Start Utility Method ============
@@ -100,19 +111,47 @@ class BaseController {
 
     // Start Create a new record
     createOne = catchAsync(async (req, res, next) => {
+        // Check if the body is empty
         if (Object.keys(req.body).length === 0) {
-            return next(new AppError("You can't create with empty field", 400));
+            return next(new AppError("You can't create with empty fields", 400));
         }
 
-        // Check for existing fields
+        // Check for existing unique fields
         await this.checkUniqueFields(req.body);
 
+        // Upload the image if present
+        let imageUrl;
+        if (req.file) {
+            const imageFile = req.file;
+            const { originalname, mimetype, buffer } = imageFile;
+
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `UserProfile/${Date.now()}_${originalname}`,
+                Body: buffer,
+                ContentType: mimetype,
+            };
+
+            // Upload the image to S3
+            const s3Upload = await new Promise((resolve, reject) => {
+                s3.upload(params, (err, data) => {
+                    if (err) {
+                        return reject(new AppError("S3 upload failed", 500));
+                    }
+                    resolve(data.Location); // Return the image URL from S3
+                });
+            });
+
+            imageUrl = s3Upload;
+            req.body[this.imageField] = imageUrl; // Add image URL to the request body
+        }
+
+        // Create the new record
         const newRecord = await this.Model.create(req.body);
 
-        // Use the default sendResponse method
+        // Send the response with the new record data
         this.sendResponse(res, 201, newRecord, `${this.Model.name} successfully created`);
 
-        // Return newRecord so child controllers can use it
         return newRecord;
     });
     // End Create a new record
@@ -182,6 +221,58 @@ class BaseController {
         this.sendResponse(res, 200, null, "All Records successfully deleted.");
     });
     // End Delete all records
+
+    // Start Update image
+    updateImage = catchAsync(async (req, res, next) => {
+        const imageFile = req.file;
+
+        const record = await this.checkRecordExists(req.params.id);
+
+        // Check if there is an image file
+        if (!imageFile) {
+            return next(new AppError("No image file provided. Please upload a valid image.", 400));
+        }
+
+        if (record[this.imageField]) {
+            const deleteParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: record[this.imageField].split("/").pop(),
+            };
+
+            await s3
+                .deleteObject(deleteParams)
+                .promise()
+                .catch((err) => {
+                    return next(new AppError("Failed to delete old image from S3", 500, err));
+                });
+        }
+
+        // Upload the new image to S3
+        const { originalname, mimetype, buffer } = imageFile;
+        const uploadParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: `UserProfile/${Date.now()}_${originalname}`,
+            Body: buffer,
+            ContentType: mimetype,
+        };
+
+        try {
+            const data = await s3.upload(uploadParams).promise();
+            const { Location: url } = data;
+
+            // Update user profile with the new image URL
+            record[this.imageField] = url;
+            await record.save();
+
+            return res.status(200).json({
+                message: "Profile image successfully updated",
+                record,
+            });
+        } catch (err) {
+            return next(new AppError("Failed to upload new image to S3", 500, err));
+        }
+    });
+    // End Update image
 
     // ============ End CRUD Method  ============
 }
