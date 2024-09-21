@@ -18,6 +18,7 @@ const AchievementTypes = require("./AchievementTypes");
 const Achievements = require("./Achievements");
 const BadgeCriteriaItems = require("./BadgeCriteriaItems");
 const Earners = require("./Earners");
+const Images = require("./Images");
 
 // ============ Start Users Association ============
 // User & Address association
@@ -319,4 +320,5 @@ module.exports = {
     Achievements,
     Earners,
     BadgeCriteriaItems,
+    Images
 };

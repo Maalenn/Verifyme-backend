@@ -4,6 +4,6 @@ const Roles = require("../../models/Roles");
 
 const BaseControllers = require("../../utils/baseControllers");
 
-const userControllers = new BaseControllers(Users, ["username", "email"], [Roles, Genders]);
+const userControllers = new BaseControllers(Users, ["username", "email"], [Roles, Genders], 'profileImage');
 
 module.exports = userControllers;

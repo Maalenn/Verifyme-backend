@@ -3,6 +3,8 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+exports.upload = multer({ storage: multer.memoryStorage() });
 
 // Error handling
 const AppError = require("./utils/appError");
@@ -14,7 +16,7 @@ const routers = require("./routers");
 const app = express();
 
 // Stripe webhook Middleware raw body
-app.use('/api/v1/subscriptions/webhook', express.raw({ type: 'application/json' }));
+app.use("/api/v1/subscriptions/webhook", express.raw({ type: "application/json" }));
 
 // Global Middleware
 app.use(express.json());
@@ -34,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Use the dynamically loaded routes
-app.use('/api/v1', routers);
+app.use("/api/v1", routers);
 
 // Handling Unhandled Routes
 app.all("*", (req, res, next) => {
