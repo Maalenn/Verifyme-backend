@@ -274,6 +274,40 @@ class BaseController {
     });
     // End Update image
 
+    // Start Delete image
+    deleteImage = catchAsync(async (req, res, next) => {
+        const { id } = req.params;
+
+        // Check if the record exists
+        const record = await this.checkRecordExists(id);
+
+        // Ensure the image field is present
+        if (!record[this.imageField]) {
+            return next(new AppError("No image associated with this record", 404));
+        }
+
+        // Prepare S3 delete parameters
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: record[this.imageField].split("/").pop(), // Extract the key from the image URL
+        };
+
+        // Attempt to delete the image from S3
+        await s3
+            .deleteObject(params)
+            .promise()
+            .catch((err) => {
+                return next(new AppError("Failed to delete image from S3", 500, err));
+            });
+
+        // Set the image field to null or delete the field as per your requirement
+        record[this.imageField] = null; // or `delete record[this.imageField];`
+        await record.save(); // Save the updated record
+
+        this.sendResponse(res, 200, null, "Image successfully deleted");
+    });
+    // Start Delete image
+
     // ============ End CRUD Method  ============
 }
 

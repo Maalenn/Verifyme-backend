@@ -21,6 +21,7 @@ router.post("/upload-profile-image", upload.single("image"), imageController.cre
 router
     .route("/upload-profile-image/:id")
     .get(imageController.getOne)
-    .put(upload.single("image"), imageController.updateImage);
+    .put(upload.single("image"), imageController.updateImage)
+    .delete(imageController.deleteImage);
 
 module.exports = router;
