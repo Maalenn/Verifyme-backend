@@ -79,7 +79,7 @@ const Institutions = sequelize.define(
         stripeCustomerId: {
             type: DataTypes.STRING,
         },
-        institutionCode: {
+        code: {
             type: DataTypes.STRING(6),
             allowNull: true,
             validate: {

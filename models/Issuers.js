@@ -16,18 +16,7 @@ const Issuers = sequelize.define("Issuers", {
             key: "id",
         },
         onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-        validate: {
-            async isIssuer(value) {
-                const user = await Users.findByPk(value);
-                if (!user) {
-                    throw new Error("User not found.");
-                }
-                if (user.roleId !== 3) {
-                    throw new Error("User must be an Issuer");
-                }
-            },
-        },
+        onUpdate: "CASCADE"
     },
     institutionId: {
         type: DataTypes.INTEGER,
@@ -37,9 +26,6 @@ const Issuers = sequelize.define("Issuers", {
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
-    },
-    endorsmentId: {
-        type: DataTypes.INTEGER,
     },
 });
 

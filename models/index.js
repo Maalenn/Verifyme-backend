@@ -18,6 +18,7 @@ const AchievementTypes = require("./AchievementTypes");
 const Achievements = require("./Achievements");
 const BadgeCriteriaItems = require("./BadgeCriteriaItems");
 const Earners = require("./Earners");
+const InviteUsers = require("./InviteUsers");
 
 // ============ Start Users Association ============
 // User & Address association
@@ -308,6 +309,17 @@ Earners.belongsTo(Achievements, {
 });
 // ============ End Earners Association ============
 
+// ============ Start Invite User ============
+InviteUsers.belongsTo(Roles, {
+    foreignKey: "roleId",
+});
+Roles.hasMany(InviteUsers, {
+    foreignKey: "roleId",
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+});
+// ============ End Invite User   ============
+
 module.exports = {
     Users,
     Roles,
@@ -329,4 +341,5 @@ module.exports = {
     Achievements,
     Earners,
     BadgeCriteriaItems,
+    InviteUsers,
 };

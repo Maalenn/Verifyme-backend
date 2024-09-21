@@ -27,7 +27,7 @@ const InviteUsers = sequelize.define("InviteUsers", {
             },
         },
     },
-    institutionCode: {
+    inviterCode: {
         type: DataTypes.STRING(6),
         allowNull: true,
         validate: {
@@ -40,4 +40,19 @@ const InviteUsers = sequelize.define("InviteUsers", {
             },
         },
     },
+    inviteExpires: {
+        type: DataTypes.DATE,
+        defaultValue: () => {
+            // Calculate 30 days from now
+            const currentDate = new Date();
+            return new Date(currentDate.setDate(currentDate.getDate() + 30)); // 30 days
+            // return new Date(currentDate.getTime() + 5 * 60 * 1000); // 5mn 
+        },
+    },
+    status: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
 });
+
+module.exports = InviteUsers;
