@@ -14,6 +14,7 @@ const sequelize = require("../../configs/database");
 const Addresses = require("../../models/Addresses");
 const Institutions = require("../../models/Institutions");
 const { generateVerificationCode } = require("../../utils/generateVerificationCode");
+const { Issuers } = require("../../models");
 
 const uniqueFields = ["email", "username", "phoneNumber"];
 const associations = [Roles, Genders];
@@ -24,19 +25,78 @@ class AuthControllers extends BaseController {
     }
 
     // ============ Start Signup controller ============
+
+    // signup = catchAsync(async (req, res, next) => {
+    //     const { userData, addressData, institutionData, institutionAddressData, issuerData } =
+    //         req.body;
+
+    //     // Start a transaction for atomicity
+    //     const transaction = await sequelize.transaction();
+
+    //     try {
+    //         // Check for unique fields
+    //         await this.checkUniqueFields(userData);
+
+    //         // Create the user
+    //         const newUser = await Users.create(userData, { transaction });
+
+    //         // If address data exists, create address with the userId
+    //         if (addressData) {
+    //             await Addresses.create({ ...addressData, userId: newUser.id }, { transaction });
+    //         }
+
+    //         // If institution data exists, create the institution with userId
+    //         let newInstitution;
+    //         const institutionCode = generateVerificationCode();
+    //         if (institutionData) {
+    //             newInstitution = await Institutions.create(
+    //                 { ...institutionData, userId: newUser.id, code: institutionCode },
+    //                 { transaction },
+    //             );
+
+    //             // If institution address data exists, create institution address with institutionId
+    //             if (institutionAddressData) {
+    //                 await Addresses.create(
+    //                     { ...institutionAddressData, institutionId: newInstitution.id },
+    //                     { transaction },
+    //                 );
+    //             }
+    //         }
+
+    //         // Create issuer if data exists
+    //         if (issuerData && newInstitution) {
+    //             await Issuers.create({
+    //                 ...issuerData,
+    //                 userId: newUser.id,
+    //                 institutionId: newInstitution.id,
+    //             });
+    //         }
+
+    //         // Commit the transaction once both user and address are successfully created
+    //         await transaction.commit();
+
+    //         // Generate and send a token back to the client
+    //         createSendToken([newUser, addressData, newInstitution, issuerData], 201, res);
+    //     } catch (error) {
+    //         // Rollback transaction only if it hasn't been committed yet
+    //         if (!transaction.finished) {
+    //             await transaction.rollback();
+    //         }
+    //         return next(error);
+    //     }
+    // });
+
     signup = catchAsync(async (req, res, next) => {
-        // =========================
-        // const user = req.body;
+        const {
+            userData,
+            addressData,
+            institutionData,
+            institutionId,
+            institutionAddressData,
+            issuerData,
+            role,
+        } = req.body;
 
-        // await this.checkUniqueFields(user);
-
-        // const newUser = await Users.create(user);
-        // createSendToken(newUser, 201, res);
-        // =========================
-
-        const { userData, addressData, institutionData, institutionAddressData } = req.body;
-
-        // Start a transaction for atomicity
         const transaction = await sequelize.transaction();
 
         try {
@@ -45,43 +105,73 @@ class AuthControllers extends BaseController {
 
             // Create the user
             const newUser = await Users.create(userData, { transaction });
+            const role = newUser.roleId;
 
-            // If address data exists, create address with the userId
+            // Create address if address data exists
             if (addressData) {
                 await Addresses.create({ ...addressData, userId: newUser.id }, { transaction });
             }
 
-            // If institution data exists, create the institution with userId
-            let newInstitution;
-            const institutionCode = generateVerificationCode();
-            if (institutionData) {
-                newInstitution = await Institutions.create(
-                    { ...institutionData, userId: newUser.id, institutionCode },
+            // Handle different roles
+            if (role === 2) {
+                // If institution data exists, create the institution with userId
+                const institutionCode = generateVerificationCode();
+                const newInstitution = await Institutions.create(
+                    { ...institutionData, userId: newUser.id, code: institutionCode },
                     { transaction },
                 );
 
-                // If institution address data exists, create institution address with institutionId
+                // If institution address data exists, create institution address
                 if (institutionAddressData) {
                     await Addresses.create(
                         { ...institutionAddressData, institutionId: newInstitution.id },
                         { transaction },
                     );
                 }
+
+                // Optionally handle any issuer creation here if needed
+            } else if (role === 3) {
+                const { institutionId } = issuerData;
+                // Check that institutionId is provided for the Issuer role
+                if (!issuerData || !institutionId) {
+                    return next(new AppError("Institution ID or Issuer data is missing.", 400));
+                }
+
+                // Verify that the institution exists using the institutionId
+                const institution = await Institutions.findByPk(institutionId, { transaction });
+                console.log("institution", institution);
+                if (!institution) {
+                    return next(new AppError("Institution not found.", 404));
+                }
+
+                // Create the issuer with the userId and institutionId
+                await Issuers.create(
+                    {
+                        ...issuerData,
+                        userId: newUser.id,
+                        institutionId: institution.id, // Use the verified institutionId
+                    },
+                    { transaction },
+                );
+            } else if (role === 4) {
+                // Handle earner-specific logic if needed
+                // You can create an earner or any related records here
             }
 
-            // Commit the transaction once both user and address are successfully created
+            // Commit the transaction once all operations are successful
             await transaction.commit();
 
             // Generate and send a token back to the client
-            createSendToken(newUser, 201, res);
+            createSendToken([newUser, addressData, institutionData, issuerData], 201, res);
         } catch (error) {
-            // Rollback transaction only if it hasn't been committed yet
+            // Rollback transaction if it hasn't been committed yet
             if (!transaction.finished) {
                 await transaction.rollback();
             }
             return next(error);
         }
     });
+
     // ============ End Signup controller ============
 
     // ============ Start Signin controller ============
