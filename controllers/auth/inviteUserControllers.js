@@ -43,13 +43,8 @@ exports.inviteEarner = (req, res, next) => {
     inviteEarnerService.sendInvitation(req, res, next);
 };
 
-// exports.verifyInvitation = (req, res, next) => {
-//     inviteIssuerService.verifyInvitation(req, res, next);
-// };
-
 exports.verifyInvitation = (req, res, next) => {
     const { as } = req.query;
-    console.log("Role for verification:", as); // Log the role type being verified
 
     if (as === "issuer") {
         inviteIssuerService.verifyInvitation(req, res, next);

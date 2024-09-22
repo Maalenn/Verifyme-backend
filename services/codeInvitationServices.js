@@ -1,6 +1,6 @@
 const EmailService = require("./mailServices");
 const { inviteCodeTemplate } = require("../templates/inviteCodeTemplate");
-const { InviteUsers } = require("../models");
+const { InviteUsers, Users } = require("../models");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const { Op, where } = require("sequelize");
@@ -21,7 +21,6 @@ class CodeInvitationService {
 
         // Find institution by ID
         const inviter = await this.inviterModel.findByPk(inviterId);
-        console.log("inviter", inviter);
 
         if (!inviter) {
             return next(new AppError("Inviter not found", 404));
@@ -93,14 +92,18 @@ class CodeInvitationService {
         }
 
         // Retrieve inviter's info from Institutions based on the valid inviterCode
-        const findInviter = await this.inviterModel.findOne({
+        const checkInviter = await this.inviterModel.findOne({
             where: { code: inviterCode }, // Assuming 'code' is the inviter's field in Institutions model
         });
 
         // Check if inviter info is found
-        if (!findInviter) {
+        if (!checkInviter) {
             return next(new AppError(`No inviter found for code '${inviterCode}'.`, 404));
         }
+
+        const checkExistAccount = await Users.findOne({
+            where: { email: checkValidGuest.inviteEmail },
+        });
 
         // Mark the invitation as verified
         checkValidGuest.status = true;
@@ -108,8 +111,9 @@ class CodeInvitationService {
 
         res.status(200).json({
             message: `Invitation verified successfully`,
-            inviter: findInviter,
+            inviter: checkInviter,
             guest: checkValidGuest,
+            user: checkExistAccount,
         });
     });
 }
