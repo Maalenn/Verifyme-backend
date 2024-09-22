@@ -30,7 +30,7 @@ class AuthControllers extends BaseController {
 
         // const newUser = await Users.create(user);
         // createSendToken(newUser, 201, res);
-        // =========================
+        // ========================= 
 
         const { userData, addressData } = req.body;
 
