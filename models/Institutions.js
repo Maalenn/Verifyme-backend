@@ -97,7 +97,7 @@ const Institutions = sequelize.define(
         indexes: [
             {
                 unique: true,
-                fields: ["institutionName", "stripeCustomerId"],
+                fields: ["institutionName", "stripeCustomerId", 'code'],
             },
         ],
     },

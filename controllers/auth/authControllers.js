@@ -132,6 +132,7 @@ class AuthControllers extends BaseController {
                 // Optionally handle any issuer creation here if needed
             } else if (role === 3) {
                 const { institutionId } = issuerData;
+                const issuerCode = generateVerificationCode();
                 // Check that institutionId is provided for the Issuer role
                 if (!issuerData || !institutionId) {
                     return next(new AppError("Institution ID or Issuer data is missing.", 400));
@@ -139,7 +140,6 @@ class AuthControllers extends BaseController {
 
                 // Verify that the institution exists using the institutionId
                 const institution = await Institutions.findByPk(institutionId, { transaction });
-                console.log("institution", institution);
                 if (!institution) {
                     return next(new AppError("Institution not found.", 404));
                 }
@@ -149,13 +149,13 @@ class AuthControllers extends BaseController {
                     {
                         ...issuerData,
                         userId: newUser.id,
-                        institutionId: institution.id, // Use the verified institutionId
+                        institutionId: institution.id,
+                        code: issuerCode,
                     },
                     { transaction },
                 );
             } else if (role === 4) {
-                // Handle earner-specific logic if needed
-                // You can create an earner or any related records here
+                
             }
 
             // Commit the transaction once all operations are successful

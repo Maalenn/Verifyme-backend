@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const codeInvitationControllers = require("../../controllers/auth/inviteIssuerControllers");
+const codeInvitationControllers = require("../../controllers/auth/inviteUserControllers");
 
-router.route("/verifyAsIssuer").post(codeInvitationControllers.verifyIssuerInvitation);
+router.route("/").post(codeInvitationControllers.verifyInvitation);
 
 module.exports = router;

@@ -109,6 +109,7 @@ class CodeInvitationService {
         res.status(200).json({
             message: `Invitation verified successfully`,
             inviter: findInviter,
+            guest: checkValidGuest,
         });
     });
 }
