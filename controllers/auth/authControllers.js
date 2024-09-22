@@ -14,7 +14,7 @@ const sequelize = require("../../configs/database");
 const Addresses = require("../../models/Addresses");
 const Institutions = require("../../models/Institutions");
 const { generateVerificationCode } = require("../../utils/generateVerificationCode");
-const { Issuers } = require("../../models");
+const { Issuers, Earners } = require("../../models");
 
 const uniqueFields = ["email", "username", "phoneNumber"];
 const associations = [Roles, Genders];
@@ -25,76 +25,14 @@ class AuthControllers extends BaseController {
     }
 
     // ============ Start Signup controller ============
-
-    // signup = catchAsync(async (req, res, next) => {
-    //     const { userData, addressData, institutionData, institutionAddressData, issuerData } =
-    //         req.body;
-
-    //     // Start a transaction for atomicity
-    //     const transaction = await sequelize.transaction();
-
-    //     try {
-    //         // Check for unique fields
-    //         await this.checkUniqueFields(userData);
-
-    //         // Create the user
-    //         const newUser = await Users.create(userData, { transaction });
-
-    //         // If address data exists, create address with the userId
-    //         if (addressData) {
-    //             await Addresses.create({ ...addressData, userId: newUser.id }, { transaction });
-    //         }
-
-    //         // If institution data exists, create the institution with userId
-    //         let newInstitution;
-    //         const institutionCode = generateVerificationCode();
-    //         if (institutionData) {
-    //             newInstitution = await Institutions.create(
-    //                 { ...institutionData, userId: newUser.id, code: institutionCode },
-    //                 { transaction },
-    //             );
-
-    //             // If institution address data exists, create institution address with institutionId
-    //             if (institutionAddressData) {
-    //                 await Addresses.create(
-    //                     { ...institutionAddressData, institutionId: newInstitution.id },
-    //                     { transaction },
-    //                 );
-    //             }
-    //         }
-
-    //         // Create issuer if data exists
-    //         if (issuerData && newInstitution) {
-    //             await Issuers.create({
-    //                 ...issuerData,
-    //                 userId: newUser.id,
-    //                 institutionId: newInstitution.id,
-    //             });
-    //         }
-
-    //         // Commit the transaction once both user and address are successfully created
-    //         await transaction.commit();
-
-    //         // Generate and send a token back to the client
-    //         createSendToken([newUser, addressData, newInstitution, issuerData], 201, res);
-    //     } catch (error) {
-    //         // Rollback transaction only if it hasn't been committed yet
-    //         if (!transaction.finished) {
-    //             await transaction.rollback();
-    //         }
-    //         return next(error);
-    //     }
-    // });
-
     signup = catchAsync(async (req, res, next) => {
         const {
             userData,
             addressData,
             institutionData,
-            institutionId,
             institutionAddressData,
             issuerData,
-            role,
+            earnerData,
         } = req.body;
 
         const transaction = await sequelize.transaction();
@@ -105,6 +43,11 @@ class AuthControllers extends BaseController {
 
             // Create the user
             const newUser = await Users.create(userData, { transaction });
+
+            if (!newUser || !newUser.id) {
+                return next(new AppError('User creation failed.', 500)); // Handle user creation failure
+            }
+
             const role = newUser.roleId;
 
             // Create address if address data exists
@@ -141,7 +84,9 @@ class AuthControllers extends BaseController {
                 // Verify that the institution exists using the institutionId
                 const institution = await Institutions.findByPk(institutionId, { transaction });
                 if (!institution) {
-                    return next(new AppError("Institution not found.", 404));
+                    return next(
+                        new AppError(`Institution with ID ${institutionId} not found.`, 404),
+                    );
                 }
 
                 // Create the issuer with the userId and institutionId
@@ -155,14 +100,41 @@ class AuthControllers extends BaseController {
                     { transaction },
                 );
             } else if (role === 4) {
-                
+                const { issuerId } = earnerData;
+
+                // Check that institutionId is provided for the Issuer role
+                if (!earnerData || !issuerId) {
+                    return next(new AppError("Issuer ID or Issuer data is missing.", 400));
+                }
+
+                // Verify that the institution exists using the institutionId
+                const issuer = await Issuers.findByPk(issuerId, { transaction });
+                if (!issuer) {
+                    return next(
+                        new AppError(`Institution with ID ${issuerId} not found.`, 404),
+                    );
+                }
+
+                // Create the issuer with the userId and institutionId
+                await Earners.create(
+                    {
+                        ...earnerData,
+                        userId: newUser.id,
+                        issuerId
+                    },
+                    { transaction },
+                );
             }
 
             // Commit the transaction once all operations are successful
             await transaction.commit();
 
             // Generate and send a token back to the client
-            createSendToken([newUser, addressData, institutionData, issuerData], 201, res);
+            createSendToken(
+                [newUser, addressData, institutionData, issuerData, earnerData],
+                201,
+                res,
+            );
         } catch (error) {
             // Rollback transaction if it hasn't been committed yet
             if (!transaction.finished) {
