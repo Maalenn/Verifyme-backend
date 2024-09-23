@@ -1,4 +1,4 @@
-const { Institutions, Issuers } = require("../../models");
+const { Institutions, Issuers, Earners } = require("../../models");
 
 const CodeInvitationService = require("../../services/codeInvitationServices");
 
@@ -15,6 +15,7 @@ const earnerRoleId = 4;
 const signupLinkEarner = "http://localhost:5173/join-invitation?as=earner";
 const issuerCode = "code";
 const issuerName = "institutionName";
+const earnerModel = Earners;
 
 const inviteIssuerService = new CodeInvitationService(
     institutionModel,
@@ -23,6 +24,7 @@ const inviteIssuerService = new CodeInvitationService(
     signupLinkIssuer,
     institutionCode,
     institutionName,
+    issuerModel,
 );
 
 const inviteEarnerService = new CodeInvitationService(
@@ -32,6 +34,7 @@ const inviteEarnerService = new CodeInvitationService(
     signupLinkEarner,
     issuerCode,
     issuerName,
+    earnerModel,
 );
 
 // Controller to handle inviting issuers

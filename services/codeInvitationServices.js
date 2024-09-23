@@ -6,13 +6,22 @@ const AppError = require("../utils/appError");
 const { Op, where } = require("sequelize");
 
 class CodeInvitationService {
-    constructor(inviterModel, inviterParamName, roleId, signupLink, inviterCode, inviterName) {
+    constructor(
+        inviterModel,
+        inviterParamName,
+        roleId,
+        signupLink,
+        inviterCode,
+        inviterName,
+        guestModel,
+    ) {
         this.inviterModel = inviterModel;
         this.inviterParamName = inviterParamName;
         this.roleId = roleId;
         this.signupLink = signupLink;
         this.inviterCode = inviterCode;
         this.inviterName = inviterName;
+        this.guestModel = guestModel;
     }
 
     sendInvitation = catchAsync(async (req, res, next) => {
@@ -59,7 +68,7 @@ class CodeInvitationService {
     verifyInvitation = catchAsync(async (req, res, next) => {
         const { inviteEmail, inviterCode } = req.body;
 
-        const checkValidGuest = await InviteUsers.findOne({
+        const guest = await InviteUsers.findOne({
             where: {
                 inviterCode,
                 inviteEmail,
@@ -68,7 +77,7 @@ class CodeInvitationService {
         });
 
         // Check if the invite email exists
-        if (!checkValidGuest) {
+        if (!guest) {
             const codeExists = await InviteUsers.findOne({ where: { inviterCode } });
             const emailExists = await InviteUsers.findOne({ where: { inviteEmail } });
 
@@ -92,28 +101,37 @@ class CodeInvitationService {
         }
 
         // Retrieve inviter's info from Institutions based on the valid inviterCode
-        const checkInviter = await this.inviterModel.findOne({
+        const inviter = await this.inviterModel.findOne({
             where: { code: inviterCode }, // Assuming 'code' is the inviter's field in Institutions model
         });
 
         // Check if inviter info is found
-        if (!checkInviter) {
+        if (!inviter) {
             return next(new AppError(`No inviter found for code '${inviterCode}'.`, 404));
         }
 
-        const checkExistAccount = await Users.findOne({
-            where: { email: checkValidGuest.inviteEmail },
+        const existUser = await Users.findOne({
+            where: { email: guest.inviteEmail },
         });
 
+        if (existUser) {
+            if (existUser.roleId === 4) {
+                await this.guestModel.create({
+                    userId: existUser.id,
+                    issuerId: inviter.id,
+                });
+            }
+        }
+
         // Mark the invitation as verified
-        checkValidGuest.status = true;
-        await checkValidGuest.save({ validate: false });
+        guest.status = true;
+        await guest.save({ validate: false });
 
         res.status(200).json({
             message: `Invitation verified successfully`,
-            inviter: checkInviter,
-            guest: checkValidGuest,
-            user: checkExistAccount,
+            inviter: inviter,
+            guest: guest,
+            user: existUser,
         });
     });
 }
