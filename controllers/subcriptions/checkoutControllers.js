@@ -12,9 +12,12 @@ const catchAsync = require("../../utils/catchAsync");
 // POST request to create Stripe Checkout session
 exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     const { servicePlanId } = req.params;
+    const { userId } = req.body;
 
     //  Fetch the institution from the database
-    const institution = await Institutions.findByPk(2);
+    const institution = await Institutions.findOne({
+        where : userId
+    });
     if (!institution) {
         return next(new AppError("Institution not found", 404));
     }
@@ -28,7 +31,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 
     // Store customerId in the Institutions table
     await institution.update({
-        stripeCustomerId : customer.id
+        stripeCustomerId: customer.id,
     });
 
     // Fetch the service plan from the database
@@ -44,7 +47,7 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
 
     // Create a new subscription record with a unpaid status
     const subscription = await Subscriptions.create({
-        institutionId: 2 || null,
+        institutionId: institution.id || null,
         servicePlanId,
         startDate: new Date(),
         status: false,
@@ -57,7 +60,6 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
         amount: 0,
         status: false,
     });
-
 
     // Create the Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
@@ -79,7 +81,6 @@ exports.createCheckoutSession = catchAsync(async (req, res, next) => {
     // Respond with the session ID
     res.status(200).json({ sessionId: session.id });
 });
-
 
 exports.getSuccess = async (req, res) => {
     res.status(200).send("You've successfully subscribed to our plan");
