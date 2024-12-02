@@ -7,6 +7,7 @@ const Users = require("../../models/Users");
 const BadgeClasses = require("../../models/BadgeClasses");
 const EmailService = require("../../services/mailServices");
 const catchAsync = require("../../utils/catchAsync");
+const AppError = require("../../utils/appError");
 
 const emailService = new EmailService();
 
@@ -33,6 +34,7 @@ exports.assignBadgeToEarners = catchAsync(async (req, res) => {
         ],
     });
 
+
     const achievements = await Achievement.findAll({
         where: { badgeClassId: badgeClass.id },
     });
@@ -44,6 +46,20 @@ exports.assignBadgeToEarners = catchAsync(async (req, res) => {
     for (const earner of earnerData) {
         for (const achievement of achievements) {
             await achievement.addEarner(earner);
+
+            const earnerAchievement = await EarnerAchievements.findOne({
+                where: {
+                    achievementId: achievement.id,
+                    earnerId: earner.id
+                }
+            })
+            if (!earnerAchievement) {
+                return next(new AppError("There's no earner with this id", 404))
+            }
+
+            // EarnerAchievement update name
+            earnerAchievement.earnerName = earner.name
+            await earnerAchievement.save()
 
             const badgeLink = `${process.env.CLIENT_BASE_URL}/dashboard/management/badges/badgeDetail/${achievement.badgeClassId}`;
 
